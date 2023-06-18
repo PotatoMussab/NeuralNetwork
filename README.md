@@ -13,3 +13,4 @@ This program was made so I could practice Python while also learn the basics abo
 # How to use Network class
 - Instantiate a network and add layers to it using addLayer(layer). The first layer added will become the input layer. The last one added will become the output layer.
 - Add training data using addTrainingData(inputs,desiredOutputs) and train the network for one epoch using train(). Using train() will reset the training data
+- Set an input using setInput(inputs) and receive an output using getOutput()
