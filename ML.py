@@ -121,6 +121,7 @@ class Network:
         numOfTrainingData=0
         for i in range(this.numOfLayers-2,-1,-1):
             this.Layers[i].backPropagate()
+        this.Layers[this.numOfLayers-1].cost=[0]*this.numOfOutputs
 
     def getOutputCost(this):
         return this.Layers[this.numOfLayers-1].cost
