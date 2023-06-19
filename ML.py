@@ -7,7 +7,7 @@ class Layer:
         this.activation=[0]*nodes
         this.errorSum=0
         this.isOutputLayer=False
-        this.learnRate=0.3
+        this.learnRate=0.05
         this.cost=[0]*nodes
         
     def setPrevLayer(this,prevLayer):
@@ -25,20 +25,19 @@ class Layer:
     def propagate(this):
         for i in range(this.nodes):
             sum=0
-            for j in range(len(this.weight[i])):
+            for j in range(this.prevLayer.nodes):
+                #print("({}, {})".format(i,j))
+                #print("Weight: {}".format(this.weight))
+                #print("PrevLayerAct: {}".format(this.prevLayer.getActivation()))
                 sum=sum+this.weight[i][j]*this.prevLayer.getActivation()[j]
             sum=sum+this.bias[i]
             if(sum>0):
                 this.activation[i]=sum
             else:
                 this.activation[i]=0
-        return 0
 
     def getActivation(this):
         return this.activation
-    
-    def setActivation(this,node,newVal):
-        this.activation[node]=newVal
         
     def setActivation(this,newVals):
         this.activation=newVals
@@ -102,6 +101,8 @@ class Network:
             i.learnRate=lr
     
     def getOutput(this):
+        for n in range(this.Layers[0].nodes):
+            this.Layers[0].activation[n]=this.Layers[0].activation[n]+this.Layers[0].bias[n]
         for n in range(1,this.numOfLayers):
             this.Layers[n].propagate()
         return this.Layers[this.numOfLayers-1].getActivation()
@@ -111,15 +112,21 @@ class Network:
         outputs=this.getOutput()
         cost=[0]*this.numOfOutputs
         for i in range(this.numOfOutputs):
-            cost[i]=cost[i]+2*(outputs[i]-desOutputs[i])
+            cost[i]=cost[i]+(outputs[i]-desOutputs[i])
         this.Layers[this.numOfLayers-1].setCost(cost)
         this.numOfTrainingData=this.numOfTrainingData+1
 
     def train(this):
-        for i in range(len(this.Layers[this.numOfLayers-1].cost)):
+        for i in range(len(this.Layers[this.numOfLayers-1].cost)):#Average the cost over the number of training data
             this.Layers[this.numOfLayers-1].cost[i]=this.Layers[this.numOfLayers-1].cost[i]/this.numOfTrainingData
-        numOfTrainingData=0
-        for i in range(this.numOfLayers-2,-1,-1):
+        numOfTrainingData=0 #Reset Number of Training Data Counter
+        
+        nBias=this.Layers[this.numOfLayers-1].bias #Adjust biases for output layer since the loop doesn't
+        for i in range(this.numOfOutputs):
+            nBias[i]=nBias[i]-(this.Layers[this.numOfLayers-1].learnRate*this.Layers[this.numOfLayers-1].cost[i])
+        this.Layers[this.numOfLayers-1].bias=nBias
+        
+        for i in range(this.numOfLayers-2,-1,-1): #Backpropagate
             this.Layers[i].backPropagate()
         this.Layers[this.numOfLayers-1].cost=[0]*this.numOfOutputs
 
